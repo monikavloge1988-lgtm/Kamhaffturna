@@ -1,13 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tournament Admin Panel</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tournament Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --bg:#000;--card:#0d0d1a;--accent:#00f5ff;--accent2:#ff00ff;--text:#e0e0ff;--border:rgba(0,245,255,0.2);
+        }
+        body { background: var(--bg); color: var(--text); font-family: 'Exo 2', sans-serif; margin: 0; padding: 20px; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 12px; margin-bottom: 20px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        h2 { font-family: 'Orbitron'; color: var(--accent); }
+        input, select { width: 100%; padding: 12px; margin-bottom: 10px; background: #111; border: 1px solid var(--border); color: #fff; border-radius: 8px; box-sizing: border-box; }
+        button { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #000; padding: 12px; border: none; font-weight: bold; width: 100%; border-radius: 8px; cursor: pointer; font-family: 'Orbitron'; }
+    </style>
 </head>
 <body>
-    <h1>Tournament Admin - Update Needed</h1>
-    <p>Please paste your original admin HTML code here.</p>
-    <p>To use the MySQL backend instead of Firebase, you will need to replace Firebase functions like <code>db.collection('users').get()</code> with standard <code>fetch('/api/users')</code> requests pointing to the server.</p>
+    <h1 style="text-align:center; font-family:'Orbitron'; color:var(--accent)">⚡ ADMIN DASHBOARD ⚡</h1>
+
+    <div class="card" id="login-section">
+        <h2>Admin Login</h2>
+        <input type="email" id="a-email" placeholder="Email" value="mukeshadmin@gmail.com">
+        <input type="password" id="a-pass" placeholder="Password" value="mukeshadmin">
+        <button onclick="adminLogin()">LOGIN</button>
+    </div>
+
+    <div id="admin-main" style="display: none;">
+        <div class="card">
+            <h2>Add Tournament</h2>
+            <input type="text" id="t-name" placeholder="Tournament Name">
+            <input type="number" id="t-fee" placeholder="Entry Fee (₹)">
+            <input type="number" id="t-prize" placeholder="Prize Pool (₹)">
+            <button onclick="addTournament()">ADD TOURNAMENT</button>
+        </div>
+
+        <div class="card">
+            <h2>Tournaments List</h2>
+            <div id="t-list">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        async function adminLogin() {
+            const email = document.getElementById('a-email').value;
+            const password = document.getElementById('a-pass').value;
+            const res = await fetch('/api/admin/login', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email, password})
+            });
+            const data = await res.json();
+            if(data.success) {
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('admin-main').style.display = 'block';
+                loadTournaments();
+            } else {
+                alert(data.error);
+            }
+        }
+
+        async function addTournament() {
+            alert('Adding tournament logic can be connected here similar to login!');
+        }
+
+        async function loadTournaments() {
+            const list = document.getElementById('t-list');
+            try {
+                const res = await fetch('/api/tournaments');
+                const data = await res.json();
+                list.innerHTML = '';
+                data.tournaments.forEach(t => {
+                    list.innerHTML += `<div style="border-bottom: 1px solid #333; padding: 10px 0;"><b>${t.name}</b> - Entry ₹${t.entry_fee}</div>`;
+                });
+            } catch(e) { list.innerHTML = "Error loading"; }
+        }
+    </script>
 </body>
 </html>
